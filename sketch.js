@@ -1,3 +1,46 @@
+/*// types of data
+// numbers
+var num = 234;
+console.log(num);
+
+//string
+var str = "Hello, I am a string";
+console.log(str);
+
+//boolean
+var bool = true;
+console.log(bool);
+
+//undefined
+var object;
+console.log(object);
+
+//reassigning undefined object to null
+object = null;
+console.log(object);
+
+//arrays
+// arrays storing same type of data
+var arr1 = [655,988,55782,1009,6441];
+console.log(arr1);
+console.log(arr1[3]);
+
+//arrays storing different data types
+var arr2 = ["Hey", "Hello World", 654, false, null];
+console.log(arr2);
+
+//arrays storing list of arrays
+var arr3 = [[544,987,987],["hey, there",987,true],[5436,0989,654,543]];
+console.log(arr3);
+//subindexing
+console.log(arr3[2][1]);
+
+arr3.push(7887);
+console.log(arr3);
+
+arr3.pop();
+console.log(arr3);
+*/
 const Engine = Matter.Engine;
 const World= Matter.World;
 const Bodies = Matter.Bodies;
@@ -7,8 +50,14 @@ var engine, world;
 var box1, pig1;
 var backgroundImg,platform;
 
+var gameState = "start";
+
+var bg;
+
+var score = 0;
+
 function preload() {
-    backgroundImg = loadImage("sprites/bg.png");
+    getBackgroundImage();
 }
 
 function setup(){
@@ -38,14 +87,23 @@ function setup(){
     bird = new Bird(200,50);
 
     slingshot = new Slingshot(bird.body,{x: 200, y:50});
+
 }
 
 function draw(){
-    background(backgroundImg);
+    if(backgroundImg){
+        background(backgroundImg);
+    }
+    
     Engine.update(engine);
   //  console.log(box2.body.position.x);
   //  console.log(box2.body.position.y);
   //  console.log(box2.body.angle);
+
+  fill("white");
+  textSize(20);
+  text("Score: " + score, 1000, 50);
+
     box1.display();
     box2.display();
     ground.display();
@@ -66,18 +124,41 @@ function draw(){
     slingshot.display();
 
     platform.display();
+
+    pig1.score();
+    pig3.score();
 }
 
 function mouseReleased(){
     slingshot.fly();
+    gameState = "play";
 }
 
 function mouseDragged(){
-    Matter.Body.setPosition(bird.body,{x: mouseX,y: mouseY});
+    if(gameState !== "play"){
+        Matter.Body.setPosition(bird.body,{x: mouseX,y: mouseY});
+    }
 }
 
 function keyPressed(){
     if(keyCode === 32){
         slingshot.attach(bird.body);
     }
+}
+
+async function getBackgroundImage(){
+    var response = await fetch("https://worldclockapi.com/api/json/est/now");
+    var responseJson = await response.json();
+    var dateTime = responseJson.currentDateTime;
+    var hour = dateTime.slice(11,13);
+    console.log(hour);
+
+    if(hour >= 06 && hour <= 18){
+        bg = "sprites/bg.png";
+    }
+    else{
+        bg = "sprites/bg2.jpg";
+    }
+    backgroundImg = loadImage(bg);
+    console.log(backgroundImg)
 }
